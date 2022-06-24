@@ -1,19 +1,40 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { DialogOverlay, DialogContent } from '@reach/dialog';
 
-import { QUERIES, WEIGHTS } from '../../constants';
+import { WEIGHTS } from '../../constants';
 
 import UnstyledButton from '../UnstyledButton';
 import Icon from '../Icon';
 import VisuallyHidden from '../VisuallyHidden';
+import { keyframes } from 'styled-components';
 
+const animationDuration = 0.25;
+let timeout;
 const MobileMenu = ({ isOpen, onDismiss }) => {
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  useEffect(() => {
+    if(timeout && isOpen) {
+      clearTimeout(timeout);
+    }
+  }, [isOpen])
+
+  const handleDismiss = (event) => {
+    setIsDismissed(true);
+
+    timeout = setTimeout(() => {
+      onDismiss(event);
+      setIsDismissed(false);
+    }, animationDuration * 1000);
+  }
+
   return (
-    <Overlay isOpen={isOpen} onDismiss={onDismiss}>
-      <Content aria-label="Menu">
-        <CloseButton onClick={onDismiss}>
+    <Overlay isOpen={isOpen} $isDismissed={isDismissed} onDismiss={handleDismiss}>
+      <Content $isDismissed={isDismissed} aria-label="Menu">
+        <ContentInner>
+        <CloseButton onClick={handleDismiss}>
           <Icon id="close" />
           <VisuallyHidden>Dismiss menu</VisuallyHidden>
         </CloseButton>
@@ -31,10 +52,31 @@ const MobileMenu = ({ isOpen, onDismiss }) => {
           <SubLink href="/privacy">Privacy Policy</SubLink>
           <SubLink href="/contact">Contact Us</SubLink>
         </Footer>
+        </ContentInner>
       </Content>
     </Overlay>
   );
 };
+
+const FadeIn = keyframes`
+  from {
+    background: hsl(220deg 5% 40% / 0);
+  }
+
+  to {
+    background: hsl(220deg 5% 40% / 0.8);
+  }
+`
+
+const SlideIn = keyframes`
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+`
 
 const Overlay = styled(DialogOverlay)`
   position: fixed;
@@ -42,9 +84,11 @@ const Overlay = styled(DialogOverlay)`
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--color-backdrop);
+  background: ${({ $isDismissed }) => $isDismissed ? 'hsl(220deg 5% 40% / 0)' : 'var(--color-backdrop)'};
   display: flex;
   justify-content: flex-end;
+  animation: ${FadeIn} ${animationDuration}s;
+  transition: background ${animationDuration}s;
 `;
 
 const Content = styled(DialogContent)`
@@ -52,8 +96,9 @@ const Content = styled(DialogContent)`
   width: 300px;
   height: 100%;
   padding: 24px 32px;
-  display: flex;
-  flex-direction: column;
+  animation: ${SlideIn} ${animationDuration}s;
+  transform: ${({ $isDismissed }) => $isDismissed ? 'translateX(100%)' : 'translateX(0)'};
+  transition: transform ${animationDuration}s;
 `;
 
 const CloseButton = styled(UnstyledButton)`
@@ -97,5 +142,21 @@ const SubLink = styled.a`
   font-size: 0.875rem;
   text-decoration: none;
 `;
+
+const FadeIn2 = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`
+const ContentInner = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: ${FadeIn2} ${animationDuration}s backwards ease-in;
+  animation-delay: 0.18s;
+`
 
 export default MobileMenu;

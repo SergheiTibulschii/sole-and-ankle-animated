@@ -20,12 +20,12 @@ const Header = () => {
           <Logo />
         </LogoWrapper>
         <DesktopNav>
-          <NavLink href="/sale">Sale</NavLink>
-          <NavLink href="/new">New&nbsp;Releases</NavLink>
-          <NavLink href="/men">Men</NavLink>
-          <NavLink href="/women">Women</NavLink>
-          <NavLink href="/kids">Kids</NavLink>
-          <NavLink href="/collections">Collections</NavLink>
+          <NavLink href="/sale" data-text='Sale' />
+          <NavLink href="/new" data-text='New Releases' />
+          <NavLink href="/men" data-text='SMenale' />
+          <NavLink href="/women" data-text='Women' />
+          <NavLink href="/kids" data-text='Kids' />
+          <NavLink href="/collections" data-text='Collections' />
         </DesktopNav>
         <MobileActions>
           <ShoppingBagButton>
@@ -115,14 +115,39 @@ const Filler = styled.div`
 `;
 
 const NavLink = styled.a`
+  position: relative;
   font-size: 1.125rem;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--color-gray-900);
   font-weight: ${WEIGHTS.medium};
+  overflow: hidden;
 
   &:first-of-type {
     color: var(--color-secondary);
+  }
+
+  &::before, &:after {
+    content: attr(data-text);
+    transition: transform 0.25s;
+  }
+
+  &:before {
+    display: block;
+    transition: transform 0.25s;
+  }
+
+  &:after {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-weight: bold;
+  }
+  
+  &:hover {
+    &:before, &:after {
+      transform: translateY(-100%);
+    }
   }
 `;
 
